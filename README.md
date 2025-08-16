@@ -5,8 +5,7 @@ Interactive snapshots of Gunnison County’s housing market pre- vs post-COVID (
 
 Interactive, public-facing dashboard comparing **2017–2018 (pre-COVID)** with **2022–2023 (post-COVID)** housing sales in Gunnison County, CO.
 
-**To publish as a live site:** rename `pre_post_full_v4_6a.html` to `index.html`, push to the repo, then enable GitHub Pages → **Settings → Pages → Deploy from a branch** (`main` / root).
-
+VIEW HERE ->  **https://eesterlein.github.io/gunnison-housing-snapshots/** 
 ---
 
 ## What’s inside
@@ -49,7 +48,7 @@ Interactive, public-facing dashboard comparing **2017–2018 (pre-COVID)** with 
 
 ## How to view
 
-- **Online (recommended):** enable **GitHub Pages** for this repo. Your site will be available at  XXXX
+- **Live Report** https://eesterlein.github.io/gunnison-housing-snapshots/
 
 - **Locally:** open `index.html` in any browser (no build step required).
 
@@ -58,6 +57,6 @@ Interactive, public-facing dashboard comparing **2017–2018 (pre-COVID)** with 
 ## Repo layout
 
 ```text
-index.html   # the dashboard (rename from pre_post_full_v4_6a.html)
+index.html   # the dashboard 
 README.md    # this file
-assets/      # (optional) images/data if you add them later
+
