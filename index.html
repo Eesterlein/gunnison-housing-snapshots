@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gunnison County Pre/Post COVID Snapshots · v4.6</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+    :root { --bg:#fafafa; --panel:#ffffff; --ink:#121212; --muted:#5a5a5a; --pre:#2f6df2; --post:#ff6e6e; }
+    body { margin:0; background:var(--bg); color:var(--ink); font-family:'Inter',sans-serif; }
+    .wrap { max-width:1100px; margin:0 auto; padding:28px; }
+    .panel { background:var(--panel); border-radius:12px; padding:20px; box-shadow:0 2px 8px rgba(0,0,0,.08); }
+    h1 { margin:0 0 8px; font-size:32px; font-weight:800; letter-spacing:-.02em; }
+    .sub { color:var(--muted); margin:0 0 10px; font-size:15px; display:flex; gap:8px; align-items:center; }
+    .info { font-size:13px; background:#eef2ff; color:#314388; padding:2px 8px; border-radius:999px; cursor:help; }
+    .seg { display:flex; gap:12px; margin:14px 0 0; }
+    .seg button { border:1px solid #d7defa; background:#f2f6ff; color:#2a3b72; padding:10px 14px; border-radius:999px; cursor:pointer; font-weight:600; font-size:14px; display:flex; align-items:center; gap:8px; }
+    .seg button svg { opacity:.9; }
+    .seg button.active { background:#2f6df2; border-color:#2f6df2; color:#fff; }
+    .grid { display:grid; gap:20px; grid-template-columns:repeat(12,1fr); margin-top:18px; }
+    .col-6 { grid-column:span 6; }
+    .housecard { display:flex; gap:14px; align-items:center; }
+    .svgbox { width:110px; height:90px; border-radius:8px; background:#f0f4ff; display:flex; align-items:center; justify-content:center; }
+    .pill { display:inline-block; padding:2px 10px; border-radius:999px; background:#eef1f7; color:var(--muted); font-size:12px; font-weight:600; }
+    .big { font-size:24px; font-weight:800; }
+    .muted { color:var(--muted); font-size:14px; }
+    .facts { display:grid; gap:8px; margin-top:10px; }
+    .fact { font-size:14px; background:#fafafa; border-radius:6px; padding:6px 8px; }
+    .bar { position:relative; height:12px; background:#e1e1e1; border-radius:999px; overflow:hidden; }
+    .bar > span { position:absolute; left:0; top:0; height:100%; width:0%; }
+    .bar.blue > span { background:var(--pre); width:42%; }
+    .bar.red > span { background:var(--post); width:14%; }
+    .chartbox { height:300px; }
+    .note { font-size:12px; color:var(--muted); margin-top:12px; }
+    h3 { margin:0 0 8px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="panel">
+      <h1>Gunnison County Pre/Post COVID Snapshots</h1>
+      <div class="sub">
+        <span>Comparing <b>2017–2018</b> (Pre‑COVID) with <b>2022–2023</b> (Post‑COVID) housing sales.</span>
+        <span class="info" title="Source: Gunnison County Assessor sales dataset. Cleaned for analysis; MLS medians may differ. Figures reflect medians for selected pre‑ and post‑COVID snapshots.">ℹ︎</span>
+      </div>
+      <div class="sub">
+        Dataset includes multiple property types (mobile homes, ranch parcels, condos, vacant land). To focus on typical market activity, zero-dollar and obvious non–arm’s‑length transfers were excluded. Sales over $15M were excluded; transactions at or below $15M are included.
+      </div>
+      <div class="seg" role="tablist" aria-label="Choose data lens">
+        <button id="bAll" class="active" role="tab" aria-selected="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 11h18v10H3z"/><path d="M7 7h10v4H7z"/></svg>
+          All property types
+        </button>
+        <button id="bDet" role="tab" aria-selected="false">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M4 11l8-7 8 7v9H4z"/></svg>
+          Residential proxy (≥800 sq ft)
+        </button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="panel col-6">
+        <div class="housecard">
+          <div class="svgbox"><svg width="96" height="80" viewBox="0 0 80 60"><rect x="10" y="30" width="40" height="22" fill="var(--pre)" rx="2"/><polygon points="10,30 30,12 50,30" fill="#6f95f8"/></svg></div>
+          <div>
+            <div class="pill">2017–2018</div>
+            <h3>Typical sale (median)</h3>
+            <div class="big" id="prePrice">$0</div>
+            <div class="muted"><span id="preSize">0</span> sq ft · <span id="preSales">0</span> sales (2 yrs)</div>
+          </div>
+        </div>
+        <div class="facts">
+          <div class="fact">% of U.S. households able to afford: <b>42%</b><div class="bar blue"><span></span></div></div>
+          <div class="fact">Price per sq ft: <b id="prePPSF">$0</b></div>
+        </div>
+      </div>
+
+      <div class="panel col-6">
+        <div class="housecard">
+          <div class="svgbox"><svg width="96" height="80" viewBox="0 0 80 60"><rect x="10" y="30" width="40" height="22" fill="var(--post)" rx="2"/><polygon points="10,30 30,12 50,30" fill="#ff9999"/></svg></div>
+          <div>
+            <div class="pill">2022–2023</div>
+            <h3>Typical sale (median)</h3>
+            <div class="big" id="postPrice">$0</div>
+            <div class="muted"><span id="postSize">0</span> sq ft · <span id="postSales">0</span> sales (2 yrs)</div>
+          </div>
+        </div>
+        <div class="facts">
+          <div class="fact">% of U.S. households able to afford: <b>14%</b><div class="bar red"><span></span></div></div>
+          <div class="fact">Price per sq ft: <b id="postPPSF">$0</b></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="panel col-6">
+        <h3>Quarterly Median Price</h3>
+        <div class="chartbox"><canvas id="lineMedian"></canvas></div>
+      </div>
+      <div class="panel col-6">
+        <h3>Quarterly Sales Volume</h3>
+        <div class="chartbox"><canvas id="lineSales"></canvas></div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:20px">
+      <h3>National Context</h3>
+      <div class="chartbox"><canvas id="lineNational"></canvas></div>
+      <div class="note">
+        U.S. median home price rose ~30% between 2017–2023 (≈$313k → $455k). Gunnison rose faster. The affordability squeeze is national, but Gunnison is more extreme.
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:20px">
+      <h3>Affordability — Gunnison vs U.S.</h3>
+      <div class="chartbox"><canvas id="barAfford"></canvas></div>
+      <div class="note">Share of households able to afford the “typical sale (median)” using national median household income and prevailing mortgage rates; assumes 20% down and 30% payment‑to‑income threshold.</div>
+    </div>
+  </div>
+
+  <script>
+    const DATA = {"all":{"pre":{"median_price":305000.0,"median_size":1258.0,"total_sales":1788,"sales_per_year":894.0},"post":{"median_price":575000.0,"median_size":1198.0,"total_sales":1272,"sales_per_year":636.0},"pre_q":[{"Quarter":"2017Q1","median_price":257500.0,"sales":139},{"Quarter":"2017Q2","median_price":357500.0,"sales":288},{"Quarter":"2017Q3","median_price":282000.0,"sales":285},{"Quarter":"2017Q4","median_price":327500.0,"sales":218},{"Quarter":"2018Q1","median_price":305000.0,"sales":117},{"Quarter":"2018Q2","median_price":265000.0,"sales":243},{"Quarter":"2018Q3","median_price":325000.0,"sales":302},{"Quarter":"2018Q4","median_price":335000.0,"sales":196}],"post_q":[{"Quarter":"2022Q1","median_price":550000.0,"sales":151},{"Quarter":"2022Q2","median_price":495000.0,"sales":190},{"Quarter":"2022Q3","median_price":520000.0,"sales":211},{"Quarter":"2022Q4","median_price":505000.0,"sales":134},{"Quarter":"2023Q1","median_price":574500.0,"sales":82},{"Quarter":"2023Q2","median_price":700000.0,"sales":163},{"Quarter":"2023Q3","median_price":650000.0,"sales":227},{"Quarter":"2023Q4","median_price":687500.0,"sales":114}]},"det":{"pre":{"median_price":343250.0,"median_size":1551.0,"total_sales":1278,"sales_per_year":639.0},"post":{"median_price":650000.0,"median_size":1493.0,"total_sales":880,"sales_per_year":440.0},"pre_q":[{"Quarter":"2017Q1","median_price":307500.0,"sales":105},{"Quarter":"2017Q2","median_price":353750.0,"sales":182},{"Quarter":"2017Q3","median_price":315000.0,"sales":201},{"Quarter":"2017Q4","median_price":385000.0,"sales":163},{"Quarter":"2018Q1","median_price":320000.0,"sales":91},{"Quarter":"2018Q2","median_price":317500.0,"sales":162},{"Quarter":"2018Q3","median_price":366500.0,"sales":226},{"Quarter":"2018Q4","median_price":386750.0,"sales":148}],"post_q":[{"Quarter":"2022Q1","median_price":630875.0,"sales":96},{"Quarter":"2022Q2","median_price":619750.0,"sales":118},{"Quarter":"2022Q3","median_price":625000.0,"sales":147},{"Quarter":"2022Q4","median_price":555900.0,"sales":91},{"Quarter":"2023Q1","median_price":600000.0,"sales":65},{"Quarter":"2023Q2","median_price":750000.0,"sales":107},{"Quarter":"2023Q3","median_price":735000.0,"sales":171},{"Quarter":"2023Q4","median_price":715000.0,"sales":85}]},"national":[{"Quarter":"2017Q1","us_median":313000.0,"median_price":257500.0},{"Quarter":"2017Q2","us_median":316000.0,"median_price":357500.0},{"Quarter":"2017Q3","us_median":319000.0,"median_price":282000.0},{"Quarter":"2017Q4","us_median":322000.0,"median_price":327500.0},{"Quarter":"2018Q1","us_median":325000.0,"median_price":305000.0},{"Quarter":"2018Q2","us_median":331750.0,"median_price":265000.0},{"Quarter":"2018Q3","us_median":338500.0,"median_price":325000.0},{"Quarter":"2018Q4","us_median":345250.0,"median_price":335000.0},{"Quarter":"2019Q1","us_median":352000.0,"median_price":NaN},{"Quarter":"2019Q2","us_median":358750.0,"median_price":NaN},{"Quarter":"2019Q3","us_median":365500.0,"median_price":NaN},{"Quarter":"2019Q4","us_median":372250.0,"median_price":NaN},{"Quarter":"2020Q1","us_median":379000.0,"median_price":NaN},{"Quarter":"2020Q2","us_median":385750.0,"median_price":NaN},{"Quarter":"2020Q3","us_median":392500.0,"median_price":NaN},{"Quarter":"2020Q4","us_median":399250.0,"median_price":NaN},{"Quarter":"2021Q1","us_median":406000.0,"median_price":NaN},{"Quarter":"2021Q2","us_median":412750.0,"median_price":NaN},{"Quarter":"2021Q3","us_median":419500.0,"median_price":NaN},{"Quarter":"2021Q4","us_median":426250.0,"median_price":NaN},{"Quarter":"2022Q1","us_median":433000.0,"median_price":550000.0},{"Quarter":"2022Q2","us_median":436142.85714285716,"median_price":495000.0},{"Quarter":"2022Q3","us_median":439285.71428571426,"median_price":520000.0},{"Quarter":"2022Q4","us_median":442428.5714285714,"median_price":505000.0},{"Quarter":"2023Q1","us_median":445571.4285714286,"median_price":574500.0},{"Quarter":"2023Q2","us_median":448714.28571428574,"median_price":700000.0},{"Quarter":"2023Q3","us_median":451857.14285714284,"median_price":650000.0},{"Quarter":"2023Q4","us_median":455000.0,"median_price":687500.0}],"affordability":{"gunnison":{"pre":42,"post":14},"us":{"pre":56,"post":36}}};
+    if (window['chartjs-plugin-annotation']) { Chart.register(window['chartjs-plugin-annotation']); }
+
+    const fmt = (n)=>Number(n).toLocaleString();
+    const money = (n)=>"$"+Number(n).toLocaleString();
+
+    const el = (id)=>document.getElementById(id);
+
+    // Build union of quarters across both lenses
+    const allLabels = Array.from(new Set([
+      ...(DATA.all.pre_q||[]).map(d=>d.Quarter), ...(DATA.all.post_q||[]).map(d=>d.Quarter),
+      ...(DATA.det.pre_q||[]).map(d=>d.Quarter), ...(DATA.det.post_q||[]).map(d=>d.Quarter)
+    ])).sort();
+
+    const sep = '2019Q1';
+
+    function seriesFrom(obj, labels, key) {
+      const map = new Map((obj||[]).map(d=>[d.Quarter, d[key]]));
+      return labels.map(l=>map.get(l) ?? null);
+    }
+
+    const ctxMed = el('lineMedian').getContext('2d');
+    const ctxSales = el('lineSales').getContext('2d');
+
+    let medianChart = new Chart(ctxMed, {
+      type:'line',
+      data:{ labels: allLabels, datasets:[
+        { label:'Pre Median', data:[], borderColor:getComputedStyle(document.documentElement).getPropertyValue('--pre').trim(), borderWidth:2, tension:.25, pointRadius:3 },
+        { label:'Post Median', data:[], borderColor:getComputedStyle(document.documentElement).getPropertyValue('--post').trim(), borderWidth:2, tension:.25, pointRadius:3 }
+      ]},
+      options:{ responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{ labels:{ color:'#1a1a1a' } }, annotation:{ annotations:{ sep:{ type:'line', xMin:sep, xMax:sep, borderColor:'#999', borderDash:[6,6], borderWidth:2 } } } },
+        scales:{ x:{ ticks:{ color:'#555', maxRotation:45, minRotation:45 } }, y:{ ticks:{ color:'#555' }, grid:{ color:'rgba(0,0,0,.06)' } } }
+      }
+    });
+
+    let salesChart = new Chart(ctxSales, {
+      type:'line',
+      data:{ labels: allLabels, datasets:[
+        { label:'Pre Sales', data:[], borderColor:getComputedStyle(document.documentElement).getPropertyValue('--pre').trim(), borderWidth:2, tension:.25, pointRadius:3 },
+        { label:'Post Sales', data:[], borderColor:getComputedStyle(document.documentElement).getPropertyValue('--post').trim(), borderWidth:2, tension:.25, pointRadius:3 }
+      ]},
+      options:{ responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{ labels:{ color:'#1a1a1a' } }, annotation:{ annotations:{ sep:{ type:'line', xMin:sep, xMax:sep, borderColor:'#999', borderDash:[6,6], borderWidth:2 } } } },
+        scales:{ x:{ ticks:{ color:'#555', maxRotation:45, minRotation:45 } }, y:{ ticks:{ color:'#555' }, grid:{ color:'rgba(0,0,0,.06)' } } }
+      }
+    });
+
+    function applyLens(lens) {
+      const pre = DATA[lens].pre, post = DATA[lens].post;
+      el('prePrice').textContent = money(pre.median_price);
+      el('preSize').textContent = fmt(pre.median_size);
+      el('preSales').textContent = fmt(pre.total_sales);
+      el('prePPSF').textContent = money(Math.round(pre.median_price / pre.median_size));
+
+      el('postPrice').textContent = money(post.median_price);
+      el('postSize').textContent = fmt(post.median_size);
+      el('postSales').textContent = fmt(post.total_sales);
+      el('postPPSF').textContent = money(Math.round(post.median_price / post.median_size));
+
+      // Update charts
+      const pre_q = DATA[lens].pre_q, post_q = DATA[lens].post_q;
+      medianChart.data.datasets[0].data = seriesFrom(pre_q, allLabels, 'median_price');
+      medianChart.data.datasets[1].data = seriesFrom(post_q, allLabels, 'median_price');
+      medianChart.update();
+
+      salesChart.data.datasets[0].data = seriesFrom(pre_q, allLabels, 'sales');
+      salesChart.data.datasets[1].data = seriesFrom(post_q, allLabels, 'sales');
+      salesChart.update();
+    }
+
+    // National context chart (all-types medians for Gunnison vs U.S.)
+    const nat = DATA.national || [];
+    const natLabels = nat.map(d=>d.Quarter), usVals = nat.map(d=>d.us_median), gVals = nat.map(d=>d.median_price);
+    new Chart(document.getElementById('lineNational').getContext('2d'), {
+      type:'line',
+      data:{ labels:natLabels, datasets:[
+        { label:'U.S. Median', data:usVals, borderColor:'#666', borderWidth:2, tension:.25, pointRadius:0 },
+        { label:'Gunnison Median (all types)', data:gVals, borderColor:getComputedStyle(document.documentElement).getPropertyValue('--post').trim(), borderWidth:2, tension:.25, pointRadius:2 }
+      ]},
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ labels:{ color:'#1a1a1a' } } }, scales:{ x:{ ticks:{ color:'#555', maxRotation:45, minRotation:45 } }, y:{ ticks:{ color:'#555' }, grid:{ color:'rgba(0,0,0,.06)' } } } }
+    });
+
+    // Affordability bar comparison
+    const aff = DATA.affordability;
+    new Chart(document.getElementById('barAfford').getContext('2d'), {
+      type:'bar',
+      data:{
+        labels:['Pre (2017–2018)','Post (2022–2023)'],
+        datasets:[
+          { label:'Gunnison (all types)', data:[aff.gunnison.pre, aff.gunnison.post], backgroundColor:[getComputedStyle(document.documentElement).getPropertyValue('--pre').trim(), getComputedStyle(document.documentElement).getPropertyValue('--post').trim()] },
+          { label:'United States', data:[aff.us.pre, aff.us.post], backgroundColor:['#888','#bbb'] }
+        ]
+      },
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ labels:{ color:'#1a1a1a' } } }, scales:{ y:{ suggestedMax:100, ticks:{ color:'#555', callback:(v)=>v+'%' } }, x:{ ticks:{ color:'#555' } } } }
+    });
+
+    // Toggle behavior
+    const bAll = el('bAll'), bDet = el('bDet');
+    function setActive(btn, other) { btn.classList.add('active'); btn.setAttribute('aria-selected','true'); other.classList.remove('active'); other.setAttribute('aria-selected','false'); }
+    bAll.onclick = ()=>{ setActive(bAll,bDet); applyLens('all'); };
+    bDet.onclick = ()=>{ setActive(bDet,bAll); applyLens('det'); };
+
+    // Initial lens
+    applyLens('all');
+  </script>
+</body>
+</html>
