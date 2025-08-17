@@ -44,7 +44,7 @@ VIEW HERE ->  **https://eesterlein.github.io/gunnison-housing-snapshots/**
 - **Dataset vs MLS:** Source is the **Gunnison County Assessor** dataset; results may differ from **MLS-only** statistics because the assessor data includes a broader set of recorded transfers.  
 - **Cleaning rules:** Removed **$0 transfers** and **obvious non–arm’s-length** records; deduplicated by `(ACCOUNTNO, SALEDATE, SALEPRICE)`. **Sales over $15M are excluded**; transactions **at or below $15M are included** to retain local luxury while trimming trophy outliers.  
 - **Method caveat:** Results are descriptive analytics for public communication. They are **not appraisals or valuations** and shouldn’t substitute for professional lending or appraisal standards.
-- 
+ 
 
 ## How to view
 
