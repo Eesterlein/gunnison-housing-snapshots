@@ -1,4 +1,3 @@
-# gunnison-housing-snapshots
 Interactive snapshots of Gunnison County’s housing market pre- vs post-COVID (2017–18 vs 2022–23) using cleaned assessor sales, with affordability and national context.
 
 # Gunnison County Pre/Post COVID Housing Snapshots
@@ -7,6 +6,8 @@ Interactive, public-facing dashboard comparing **2017–2018 (pre-COVID)** with 
 
 VIEW HERE ->  **https://eesterlein.github.io/gunnison-housing-snapshots/** 
 ---
+
+> **Independent research project.** This project is built from publicly available Gunnison County, Colorado assessor data downloads and GIS parcel data. It is not an official product of the Gunnison County Assessor's Office or Gunnison County, is not a system of record, and may contain errors or out-of-date information. Always verify against official county records.
 
 ## What’s inside
 
